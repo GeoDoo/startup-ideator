@@ -98,7 +98,7 @@ Feature: Partnership Trend Tracking
     And subsequent reports should reference relevant annotations when explaining score changes
 
   Scenario: System auto-annotates milestone events
-    Given the team logged a milestone "Raised Seed Round"
+    Given a partner recorded the milestone "Raised Seed Round"
     Then the timeline should automatically show this event
     And correlate it with any score changes around that date
 

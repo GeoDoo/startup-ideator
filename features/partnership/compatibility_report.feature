@@ -12,7 +12,7 @@ Feature: Compatibility Report Generation
   Scenario: Report is generated when all partners complete assessments
     Given Alice has completed her assessment
     And Bob has just completed his assessment
-    Then the system should automatically begin generating the compatibility report
+    Then the compatibility report should begin generating
     And all partners should be notified that the report is being generated
 
   Scenario: Report generation requires all partners to have completed assessments

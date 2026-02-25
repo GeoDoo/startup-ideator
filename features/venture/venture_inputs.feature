@@ -149,7 +149,7 @@ Feature: Venture Discovery Inputs
       | Interests & Passions   |
       | Problem Spaces         |
       | Customer & Market      |
-    Then the system should allow idea generation to proceed
+    Then I should be able to proceed to idea generation
     And optional sections should be noted as "would improve results if completed"
 
   Scenario: Review and submit venture inputs

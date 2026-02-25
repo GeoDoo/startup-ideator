@@ -125,14 +125,16 @@ Feature: Authentication & User Accounts
     Given I am logged in
     When I request account deletion
     Then I should be warned about the consequences:
-      | consequence                                               |
-      | All your personal data will be permanently deleted       |
-      | You will be removed from all teams                       |
-      | Team reports will be regenerated without your data       |
-      | This action cannot be undone                             |
+      | consequence                                                     |
+      | All your personal data will be permanently deleted             |
+      | You will be removed from all teams                             |
+      | Reports will be regenerated without your data                  |
+      | Anonymized insights already in published reports may be retained|
+      | This action cannot be undone                                   |
     And I must confirm by typing "DELETE MY ACCOUNT"
     And I must provide my password
-    And I should receive an email confirming the deletion
+    And I should receive an email confirming the request
+    And my data should be deleted within 30 days
 
   Scenario: Account deletion transfers team ownership
     Given I am the creator of a team with other partners

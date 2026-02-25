@@ -9,7 +9,7 @@ Feature: Ongoing Partnership Reassessment
 
   # --- Pulse Survey Scheduling ---
 
-  Scenario: System prompts for reassessment after configured interval
+  Scenario: Partners are prompted for reassessment after configured interval
     Given the team has set reassessment frequency to "monthly"
     When 30 days have passed since the last assessment
     Then all partners should receive a notification to complete a pulse survey
@@ -97,14 +97,14 @@ Feature: Ongoing Partnership Reassessment
   # --- Reminders and Nudges ---
 
   Scenario: Partners receive reminders if they haven't completed the pulse survey
-    Given a pulse survey was triggered 5 days ago
+    Given a pulse survey was sent 5 days ago
     And Alice has not completed it
     Then Alice should receive a reminder notification
     And the reminder should be gentle and non-pressuring
 
   Scenario: Escalating reminders
-    Given a pulse survey was triggered
-    Then reminders should be sent on this schedule:
+    Given partners have been prompted to complete a pulse survey
+    Then reminders should follow this schedule:
       | day  | action                                    |
       | 3    | First gentle reminder                     |
       | 7    | Second reminder with note about team value|
@@ -114,15 +114,15 @@ Feature: Ongoing Partnership Reassessment
   Scenario: Partner can skip a pulse survey
     Given a pulse survey is active
     When I choose to skip this round
-    Then my skip should be recorded
+    Then my status for this round should show as "skipped"
     And the report should note "Not all partners participated in this round"
     And the report should use my most recent assessment answers as the baseline
 
   # --- Milestone-Based Reassessment ---
 
   Scenario: Trigger reassessment on major milestones
-    When the team logs a major milestone
-    Then the system should suggest an unscheduled reassessment
+    When a partner records a major milestone
+    Then all partners should see a suggestion to complete an unscheduled reassessment
     And the milestone options should include:
       | milestone                                    |
       | Raised funding                               |
@@ -134,9 +134,9 @@ Feature: Ongoing Partnership Reassessment
       | Significant disagreement occurred             |
       | Revenue milestone reached                     |
 
-  Scenario: Milestone-triggered survey includes context-specific questions
+  Scenario: Milestone-prompted survey includes context-specific questions
     Given the team just raised a seed round
-    When the milestone reassessment is triggered
+    When the milestone reassessment is started
     Then the pulse survey should include additional questions about:
       | topic                                                          |
       | How do you feel about the fundraising terms?                  |

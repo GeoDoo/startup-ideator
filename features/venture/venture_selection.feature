@@ -9,9 +9,9 @@ Feature: Venture Selection & Alignment Reveal
 
   # --- Alignment Reveal ---
 
-  Scenario: Alignment reveal is triggered when all ratings are complete
+  Scenario: Alignment reveal becomes available when all ratings are complete
     Given all partners have submitted their ratings
-    Then the system should automatically generate the alignment analysis
+    Then the alignment analysis should become available to all partners
     And all partners should be notified simultaneously
 
   Scenario: Alignment reveal shows mutual enthusiasm
@@ -35,7 +35,7 @@ Feature: Venture Selection & Alignment Reveal
     And Bob rated "Crypto Payroll" as 3/10 excitement
     When the alignment reveal is shown
     Then "Crypto Payroll" should be flagged as "Divergent Interest"
-    And the system should suggest "This idea has split opinions — worth discussing why"
+    And partners should see a note "This idea has split opinions — worth discussing why"
 
   # --- Alignment Score Per Idea ---
 
@@ -73,7 +73,7 @@ Feature: Venture Selection & Alignment Reveal
   Scenario: Anonymized rating aggregation for 2-person teams
     Given the team has exactly 2 partners
     When I view the aggregated ratings
-    Then the system should present data in a way that doesn't trivially reveal individual ratings
+    Then ratings should be presented in a way that doesn't trivially reveal individual responses
     And use ranges and averages rather than exact per-partner scores
     And include a note "With 2 partners, full anonymity of ratings is limited"
 
@@ -82,7 +82,7 @@ Feature: Venture Selection & Alignment Reveal
   Scenario: Start a structured discussion on top ideas
     Given the alignment reveal has been generated
     When a partner initiates a discussion on a specific idea
-    Then the system should provide discussion prompts:
+    Then partners should see discussion prompts:
       | prompt                                                                |
       | What excites you most about this idea?                              |
       | What's your biggest concern about pursuing this?                    |
@@ -98,8 +98,8 @@ Feature: Venture Selection & Alignment Reveal
 
   Scenario: Shortlisted ideas get deeper analysis
     Given 2 ideas have been shortlisted by mutual agreement
-    When the deeper analysis is triggered
-    Then for each shortlisted idea the system should generate:
+    When partners request a deeper analysis
+    Then for each shortlisted idea partners should see:
       | deep_analysis_component                                           |
       | Detailed competitive analysis with named competitors             |
       | Detailed customer persona profiles (3-5 personas)                |
@@ -116,11 +116,11 @@ Feature: Venture Selection & Alignment Reveal
     When all partners vote to select one venture
     Then that venture should be marked as "Selected"
     And the team dashboard should update to reflect the selected venture
-    And the system should generate a "Getting Started" action plan
+    And a "Getting Started" action plan should be presented to the team
 
   Scenario: Getting Started action plan for selected venture
     Given the team has selected "AI Contract Review" as their venture
-    Then the system should generate:
+    Then the action plan should include:
       | action_plan_section                                       |
       | Week-by-week plan for the first 90 days                  |
       | Role assignments based on partner strengths              |
@@ -133,12 +133,12 @@ Feature: Venture Selection & Alignment Reveal
   Scenario: No consensus reached
     Given partners cannot agree on a single venture
     When no idea receives enough votes to be selected
-    Then the system should:
-      | action                                                           |
-      | Highlight the ideas closest to consensus                        |
-      | Suggest a structured decision framework to break the tie        |
-      | Recommend time-boxed exploration of top 2 ideas in parallel     |
-      | Note the disagreement in the partnership health timeline        |
+    Then partners should see:
+      | guidance                                                         |
+      | The ideas closest to consensus highlighted                      |
+      | A suggested decision framework to break the tie                 |
+      | A recommendation to time-box exploration of top 2 ideas         |
+      | A note that the disagreement has been recorded on the health timeline |
 
   Scenario: Voting rules are visible before voting begins
     Given the alignment reveal has been generated
@@ -165,6 +165,6 @@ Feature: Venture Selection & Alignment Reveal
   Scenario: Learnings from abandoned venture inform next round
     Given the team abandoned "AI Contract Review" because "Market too small"
     When they regenerate venture candidates
-    Then the system should factor in the learnings
+    Then the new ideas should reflect the learnings
     And avoid generating similar ideas unless explicitly requested
     And the new ideas should address the lessons learned

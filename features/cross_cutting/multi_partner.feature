@@ -9,7 +9,7 @@ Feature: Multi-Partner Support
     Given a team with exactly 2 partners
     Then the partnership assessment should work as pairwise analysis
     And the compatibility report should focus on the dyad
-    And the system should note limited anonymity with only 2 partners
+    And partners should see a note about limited anonymity with only 2 partners
 
   Scenario: Three-partner team
     Given a team with 3 partners
@@ -45,7 +45,7 @@ Feature: Multi-Partner Support
 
   Scenario: Anonymity limitations with 2 partners are disclosed
     Given a team with 2 partners
-    Then the system should clearly disclose:
+    Then partners should see a clear disclosure:
       | disclosure                                                              |
       | "With only 2 partners, some inferences about individual answers may be possible" |
       | "The report uses aggregated language but full anonymity cannot be guaranteed"     |
@@ -65,7 +65,7 @@ Feature: Multi-Partner Support
     Given a team with 5 partners
     When a partner starts the assessment
     Then the estimated time should account for additional partner-specific questions
-    And the system should say "Estimated time: 60-75 minutes"
+    And the estimated time should display as "60-75 minutes"
 
   # --- Report Adaptations ---
 
@@ -116,7 +116,7 @@ Feature: Multi-Partner Support
     Given a team with 2 partners
     When selecting a venture to pursue
     Then both partners must agree (unanimous)
-    And if they disagree the system should facilitate structured discussion
+    And if they disagree they should be guided through a structured discussion
 
   Scenario: Voting threshold for 3-partner team
     Given a team with 3 partners
@@ -161,7 +161,7 @@ Feature: Multi-Partner Support
     Given a pulse survey is in progress
     And Alice and Bob have completed it but Carol has not
     When Carol leaves the team
-    Then the report should be generated using Alice's and Bob's responses
+    Then the report should be generated for the remaining partners
     And the report should note "Generated after a team composition change"
 
   Scenario: Partner leaves during active idea rating

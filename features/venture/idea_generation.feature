@@ -13,7 +13,7 @@ Feature: AI-Powered Startup Idea Generation
   Scenario: Idea generation begins when all partners submit venture inputs
     Given Alice has completed her venture inputs
     And Bob has just completed his venture inputs
-    Then the system should begin the idea generation process
+    Then all partners should see that idea generation has started
     And all partners should be notified that ideas are being generated
 
   Scenario: Idea generation requires minimum inputs
@@ -25,20 +25,20 @@ Feature: AI-Powered Startup Idea Generation
   # --- Idea Generation Progress ---
 
   Scenario: Partners see progress while ideas are being generated
-    Given idea generation has been triggered
+    Given all partners have submitted their venture inputs
     When partners view the venture discovery page
     Then they should see a progress indicator
     And a message "Generating venture candidates tailored to your team"
 
   Scenario: Idea generation failure is handled gracefully
-    Given idea generation has been triggered
+    Given all partners have submitted their venture inputs
     When the generation fails
     Then partners should see "Idea generation encountered an issue"
     And they should be offered the option to retry
 
   # --- Idea Generation Process ---
 
-  Scenario: System generates a curated set of venture candidates
+  Scenario: A curated set of venture candidates is presented
     When the idea generation completes
     Then the team should receive between 10-20 venture candidates
     And no two candidates should target the same customer segment with the same solution approach
@@ -165,8 +165,7 @@ Feature: AI-Powered Startup Idea Generation
   Scenario: Request more ideas in a specific direction
     Given the team has received the initial set of ideas
     When a partner requests "more ideas like Candidate #3 but for healthcare"
-    Then the system should generate 5 additional ideas in that direction
-    And add them to the existing candidate pool
+    Then 5 additional ideas in that direction should appear in the candidate pool
 
   Scenario: Request ideas with specific constraints
     When a partner requests ideas with constraints like:
@@ -174,10 +173,10 @@ Feature: AI-Powered Startup Idea Generation
       | Must reach revenue within 6 months            |
       | Must not require more than $50K to start      |
       | Must be B2B SaaS                              |
-    Then the system should generate ideas that satisfy all constraints
+    Then the resulting ideas should satisfy all specified constraints
 
   Scenario: Full regeneration with updated inputs
     Given partners have updated their venture inputs
     When they request a full regeneration
-    Then the system should generate a new set of 10-20 ideas
+    Then a new set of 10-20 ideas should be presented
     And the previous set should be archived but still accessible

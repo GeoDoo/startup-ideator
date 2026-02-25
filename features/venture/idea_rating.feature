@@ -5,7 +5,7 @@ Feature: Anonymous Idea Rating & Ranking
 
   Background:
     Given team "Acme Ventures" has partners: Alice and Bob
-    And the system has generated 15 venture candidates
+    And 15 venture candidates are available for review
 
   # --- Individual Rating ---
 
@@ -52,7 +52,7 @@ Feature: Anonymous Idea Rating & Ranking
   Scenario: Forced ranking prevents ties
     When I rank my top 5 ideas
     Then each idea must have a unique rank (1-5)
-    And the system should not allow ties
+    And ties should not be allowed
 
   # --- Anonymity During Rating ---
 
@@ -73,7 +73,7 @@ Feature: Anonymous Idea Rating & Ranking
   Scenario: All partners must complete ratings before reveal
     Given Alice has completed her ratings
     But Bob has not
-    Then the alignment reveal should NOT be triggered
+    Then the alignment reveal should NOT be available
     And Alice should see "Waiting for all partners to complete ratings"
 
   Scenario: Reminder for incomplete ratings
@@ -86,13 +86,13 @@ Feature: Anonymous Idea Rating & Ranking
 
   Scenario: Edit ratings before the alignment reveal
     Given I have submitted my ratings
-    And the alignment reveal has NOT been triggered
+    And the alignment reveal has NOT happened yet
     When I choose to edit my ratings
     Then I should be able to change any rating or ranking
     And the updated ratings should replace the previous ones
 
   Scenario: Cannot edit ratings after alignment reveal
-    Given the alignment reveal has been triggered
+    Given the alignment reveal has already happened
     When I try to edit my ratings
     Then I should see "Ratings are locked after the alignment reveal"
     And I should NOT be able to make changes
