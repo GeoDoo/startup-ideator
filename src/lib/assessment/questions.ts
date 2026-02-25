@@ -1,0 +1,620 @@
+export type QuestionType =
+  | "ranking"
+  | "slider"
+  | "multi-select"
+  | "single-select"
+  | "free-text"
+  | "scenario"
+  | "skill-rating"
+  | "spectrum"
+  | "number"
+  | "partner-reflection";
+
+export interface Question {
+  key: string;
+  label: string;
+  type: QuestionType;
+  required: boolean;
+  description?: string;
+  options?: { value: string; label: string; description?: string }[];
+  spectrums?: { left: string; right: string }[];
+  scenarios?: string[];
+  categories?: { key: string; label: string; examples?: string }[];
+  min?: number;
+  max?: number;
+  minLength?: number;
+  allowCustom?: boolean;
+}
+
+export interface AssessmentSection {
+  key: string;
+  title: string;
+  description: string;
+  questions: Question[];
+}
+
+export const ASSESSMENT_SECTIONS: AssessmentSection[] = [
+  {
+    key: "identity-motivation",
+    title: "Identity & Motivation",
+    description: "Explore your core motivations, vision, and what drives you as an entrepreneur.",
+    questions: [
+      {
+        key: "motivation-ranking",
+        label: "Rank your motivations for starting a company",
+        type: "ranking",
+        required: true,
+        options: [
+          { value: "financial-freedom", label: "Financial freedom" },
+          { value: "impact-mission", label: "Impact / mission" },
+          { value: "autonomy", label: "Autonomy" },
+          { value: "building-legacy", label: "Building a legacy" },
+          { value: "creative-expression", label: "Creative expression" },
+          { value: "status-recognition", label: "Status / recognition" },
+          { value: "learning-growth", label: "Learning / growth" },
+        ],
+      },
+      {
+        key: "primary-motivation",
+        label: "What is your primary motivation for starting a company?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+        description: "Go beyond surface-level answers. What really drives you?",
+      },
+      {
+        key: "personal-success-1yr",
+        label: "How do you define personal success in 1 year?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "personal-success-3yr",
+        label: "How do you define personal success in 3 years?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "personal-success-10yr",
+        label: "How do you define personal success in 10 years?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "sacrifices",
+        label: "What are you willing to sacrifice?",
+        type: "multi-select",
+        required: true,
+        options: [
+          { value: "salary", label: "Current salary / income" },
+          { value: "savings", label: "Personal savings" },
+          { value: "time", label: "Personal time / hobbies" },
+          { value: "relationships", label: "Social relationships" },
+          { value: "job-security", label: "Job security" },
+          { value: "health", label: "Work-life balance" },
+        ],
+        description: "Select all that apply, then explain in the next question",
+      },
+      {
+        key: "sacrifices-detail",
+        label: "Elaborate on your sacrifices and any limits you have",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "exit-strategy",
+        label: "What is your preferred exit strategy?",
+        type: "single-select",
+        required: true,
+        options: [
+          { value: "lifestyle", label: "Build a lifestyle business (no exit)" },
+          { value: "acq-3-5", label: "Acquisition within 3-5 years" },
+          { value: "acq-5-10", label: "Acquisition within 5-10 years" },
+          { value: "ipo", label: "IPO" },
+          { value: "no-preference", label: "No preference — depends on circumstances" },
+        ],
+      },
+      {
+        key: "exit-strategy-reasoning",
+        label: "Explain your reasoning for the exit strategy",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "long-term-vision",
+        label: "What is your long-term vision for the venture?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "personal-why",
+        label: "What is your deeper personal 'why' behind entrepreneurship?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+        description: "The reason that gets you out of bed on the hardest days.",
+      },
+      {
+        key: "previous-experience",
+        label: "Describe your previous entrepreneurial experience and key lessons learned",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+        description: "If none, explain what draws you to start now.",
+      },
+    ],
+  },
+  {
+    key: "working-style",
+    title: "Working Style & Psychology",
+    description: "Understand how you work, make decisions, and handle pressure.",
+    questions: [
+      {
+        key: "decision-making-spectrums",
+        label: "Rate yourself on these decision-making spectrums",
+        type: "spectrum",
+        required: true,
+        spectrums: [
+          { left: "Data-driven", right: "Intuition-driven" },
+          { left: "Fast decisions", right: "Deliberate" },
+          { left: "Consensus-seeking", right: "Decisive alone" },
+          { left: "Risk-taking", right: "Risk-averse" },
+        ],
+      },
+      {
+        key: "risk-tolerance",
+        label: "How would you rate your overall risk tolerance?",
+        type: "slider",
+        required: true,
+        min: 1,
+        max: 10,
+        description: "1 = extremely risk-averse, 10 = extremely risk-tolerant",
+      },
+      {
+        key: "conflict-resolution-primary",
+        label: "What is your primary conflict resolution style?",
+        type: "single-select",
+        required: true,
+        options: [
+          { value: "competing", label: "Competing", description: "I push for my position firmly" },
+          { value: "collaborating", label: "Collaborating", description: "I seek win-win solutions" },
+          { value: "compromising", label: "Compromising", description: "I find middle ground quickly" },
+          { value: "avoiding", label: "Avoiding", description: "I prefer to let things cool down first" },
+          { value: "accommodating", label: "Accommodating", description: "I prioritize the relationship over the issue" },
+        ],
+      },
+      {
+        key: "conflict-resolution-secondary",
+        label: "What is your secondary conflict resolution style?",
+        type: "single-select",
+        required: true,
+        options: [
+          { value: "competing", label: "Competing" },
+          { value: "collaborating", label: "Collaborating" },
+          { value: "compromising", label: "Compromising" },
+          { value: "avoiding", label: "Avoiding" },
+          { value: "accommodating", label: "Accommodating" },
+        ],
+      },
+      {
+        key: "communication-preferences",
+        label: "Describe your communication preferences and frequency",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "energy-pattern",
+        label: "How would you describe your energy pattern?",
+        type: "slider",
+        required: true,
+        min: 1,
+        max: 10,
+        description: "1 = pure sprinter (intense bursts), 10 = pure marathoner (steady pace)",
+      },
+      {
+        key: "work-schedule",
+        label: "Describe your ideal work schedule preferences",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "failure-response",
+        label: "How do you typically respond to failure and setbacks?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "stress-scenarios",
+        label: "Respond to these workplace scenarios",
+        type: "scenario",
+        required: true,
+        scenarios: [
+          "Your co-founder makes a major decision without consulting you",
+          "A key employee quits unexpectedly during a critical launch",
+          "You discover your co-founder has been talking to investors without you",
+          "Revenue drops 40% in one quarter",
+        ],
+        description: "For each scenario, describe your likely reaction and rate your emotional intensity (1-10).",
+      },
+      {
+        key: "structure-vs-flexibility",
+        label: "Where do you fall on the structure vs. flexibility spectrum?",
+        type: "slider",
+        required: true,
+        min: 1,
+        max: 10,
+        description: "1 = need rigid structure, 10 = thrive in chaos",
+      },
+      {
+        key: "delegation-comfort",
+        label: "How comfortable are you with delegation?",
+        type: "slider",
+        required: true,
+        min: 1,
+        max: 10,
+        description: "1 = prefer to do everything myself, 10 = delegate as much as possible",
+      },
+    ],
+  },
+  {
+    key: "skills-capabilities",
+    title: "Skills & Capabilities",
+    description: "Map your technical skills, business skills, and network strengths.",
+    questions: [
+      {
+        key: "technical-skills",
+        label: "Rate your technical skills (0 = none, 5 = expert)",
+        type: "skill-rating",
+        required: true,
+        categories: [
+          { key: "software-engineering", label: "Software Engineering", examples: "Frontend, Backend, Mobile, DevOps" },
+          { key: "data-ai", label: "Data & AI", examples: "ML, Data Engineering, Analytics" },
+          { key: "design", label: "Design", examples: "UI/UX, Product Design, Branding" },
+          { key: "infrastructure", label: "Infrastructure", examples: "Cloud, Security, Networking" },
+          { key: "hardware-iot", label: "Hardware / IoT", examples: "Embedded systems, Manufacturing" },
+        ],
+        allowCustom: true,
+      },
+      {
+        key: "business-skills",
+        label: "Rate your business skills (0 = none, 5 = expert)",
+        type: "skill-rating",
+        required: true,
+        categories: [
+          { key: "sales", label: "Sales", examples: "B2B, B2C, Enterprise, Channel" },
+          { key: "marketing", label: "Marketing", examples: "Growth, Content, Brand, Paid" },
+          { key: "finance", label: "Finance", examples: "Fundraising, Financial modeling, Accounting" },
+          { key: "operations", label: "Operations", examples: "Supply chain, HR, Legal, Process" },
+          { key: "strategy", label: "Strategy", examples: "Market analysis, Competitive strategy, Pricing" },
+          { key: "product", label: "Product", examples: "Product management, User research, Roadmapping" },
+          { key: "leadership", label: "Leadership", examples: "Team building, Culture, Mentoring" },
+        ],
+        allowCustom: true,
+      },
+      {
+        key: "domain-expertise",
+        label: "What are your areas of domain expertise and depth?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "network-strength",
+        label: "Rate your network strength in each category",
+        type: "skill-rating",
+        required: true,
+        categories: [
+          { key: "angels", label: "Investors (Angels)" },
+          { key: "vc", label: "Investors (VC)" },
+          { key: "customers", label: "Potential customers" },
+          { key: "talent", label: "Technical talent" },
+          { key: "industry-experts", label: "Industry experts" },
+          { key: "advisors", label: "Advisors / mentors" },
+          { key: "media", label: "Media / PR" },
+          { key: "government", label: "Government / Policy" },
+        ],
+        min: 0,
+        max: 2,
+        description: "0 = weak, 1 = moderate, 2 = strong",
+      },
+      {
+        key: "skills-teach",
+        label: "What skills can you teach to others?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "skills-need",
+        label: "What skills do you need to learn or hire for?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "unique-abilities",
+        label: "What are your unique abilities or unfair advantages?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "past-roles",
+        label: "Describe your past roles and what you excelled at",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+    ],
+  },
+  {
+    key: "structural-practical",
+    title: "Structural & Practical",
+    description: "Align on the practical realities — time, money, equity, and logistics.",
+    questions: [
+      {
+        key: "financial-runway-months",
+        label: "How many months can you go without salary?",
+        type: "number",
+        required: true,
+        min: 0,
+        max: 60,
+      },
+      {
+        key: "minimum-monthly-income",
+        label: "What is your minimum monthly income needed?",
+        type: "single-select",
+        required: true,
+        options: [
+          { value: "0", label: "$0 — I have other income" },
+          { value: "1000-3000", label: "$1,000 - $3,000" },
+          { value: "3000-5000", label: "$3,000 - $5,000" },
+          { value: "5000-8000", label: "$5,000 - $8,000" },
+          { value: "8000-12000", label: "$8,000 - $12,000" },
+          { value: "12000+", label: "$12,000+" },
+        ],
+      },
+      {
+        key: "salary-timeline",
+        label: "When do you need to start drawing salary?",
+        type: "single-select",
+        required: true,
+        options: [
+          { value: "immediately", label: "Immediately" },
+          { value: "3-months", label: "Within 3 months" },
+          { value: "6-months", label: "Within 6 months" },
+          { value: "12-months", label: "Within 12 months" },
+          { value: "flexible", label: "Flexible — depends on funding" },
+        ],
+      },
+      {
+        key: "investment-savings",
+        label: "How much savings can you invest in the venture?",
+        type: "single-select",
+        required: true,
+        options: [
+          { value: "0", label: "$0" },
+          { value: "1k-10k", label: "$1,000 - $10,000" },
+          { value: "10k-50k", label: "$10,000 - $50,000" },
+          { value: "50k-100k", label: "$50,000 - $100,000" },
+          { value: "100k+", label: "$100,000+" },
+        ],
+      },
+      {
+        key: "debt-comfort",
+        label: "How comfortable are you taking on debt for the business?",
+        type: "slider",
+        required: true,
+        min: 1,
+        max: 10,
+      },
+      {
+        key: "hours-per-week",
+        label: "Hours per week you can commit now",
+        type: "number",
+        required: true,
+        min: 1,
+        max: 80,
+      },
+      {
+        key: "full-time-timeline",
+        label: "When can you go full-time (if not already)?",
+        type: "single-select",
+        required: true,
+        options: [
+          { value: "already", label: "I'm already full-time" },
+          { value: "1-month", label: "Within 1 month" },
+          { value: "3-months", label: "Within 3 months" },
+          { value: "6-months", label: "Within 6 months" },
+          { value: "12-months", label: "Within 12 months" },
+          { value: "uncertain", label: "Uncertain" },
+        ],
+      },
+      {
+        key: "schedule-constraints",
+        label: "What are the hard constraints on your schedule?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "weekend-willingness",
+        label: "Willingness to work weekends during crunch periods",
+        type: "slider",
+        required: true,
+        min: 1,
+        max: 10,
+      },
+      {
+        key: "vacation-expectations",
+        label: "How many weeks of vacation do you expect per year?",
+        type: "number",
+        required: true,
+        min: 0,
+        max: 12,
+      },
+      {
+        key: "equity-percentage",
+        label: "What is your expected equity percentage?",
+        type: "free-text",
+        required: true,
+        minLength: 20,
+      },
+      {
+        key: "equity-split-approach",
+        label: "Should equity be equal or merit-based?",
+        type: "single-select",
+        required: true,
+        options: [
+          { value: "equal", label: "Equal split" },
+          { value: "merit", label: "Merit-based (different contributions = different equity)" },
+          { value: "dynamic", label: "Dynamic — adjust over time based on contribution" },
+          { value: "discuss", label: "Need to discuss — no strong preference" },
+        ],
+      },
+      {
+        key: "vesting-preference",
+        label: "What is your preferred vesting schedule?",
+        type: "single-select",
+        required: true,
+        options: [
+          { value: "4yr-1yr-cliff", label: "4-year with 1-year cliff (standard)" },
+          { value: "3yr-6mo-cliff", label: "3-year with 6-month cliff" },
+          { value: "no-vesting", label: "No vesting (all upfront)" },
+          { value: "custom", label: "Custom arrangement" },
+        ],
+      },
+      {
+        key: "equity-change-factors",
+        label: "What would change your equity expectations?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "ip-noncompete",
+        label: "Do you have any existing IP or non-compete constraints?",
+        type: "free-text",
+        required: true,
+        minLength: 20,
+      },
+      {
+        key: "location-relocation",
+        label: "Where are you based and are you willing to relocate?",
+        type: "free-text",
+        required: true,
+        minLength: 20,
+      },
+      {
+        key: "other-commitments",
+        label: "What other active commitments do you have?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+        description: "Current job, side projects, family obligations, etc.",
+      },
+      {
+        key: "fundraising-preference",
+        label: "What are your fundraising preferences?",
+        type: "multi-select",
+        required: true,
+        options: [
+          { value: "bootstrap", label: "Bootstrap" },
+          { value: "angel", label: "Angel investment" },
+          { value: "vc", label: "Venture capital" },
+          { value: "grants", label: "Grants / competitions" },
+          { value: "revenue", label: "Revenue-funded growth" },
+        ],
+      },
+    ],
+  },
+  {
+    key: "relationship-trust",
+    title: "Relationship & Trust",
+    description: "Reflect on trust, communication, and your relationships with potential partners.",
+    questions: [
+      {
+        key: "feedback-style",
+        label: "How do you prefer to give and receive feedback?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "transparency-expectations",
+        label: "What are your expectations for transparency and information sharing?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "loyalty-definition",
+        label: "How do you define loyalty in a business context?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "past-partnerships",
+        label: "Describe past partnership or collaboration experiences and lessons learned",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "dealbreakers",
+        label: "Select your dealbreakers and rank them by severity",
+        type: "ranking",
+        required: true,
+        options: [
+          { value: "not-fulltime", label: "Partner is not full-time committed" },
+          { value: "equity-disagreement", label: "Fundamental disagreement on equity split" },
+          { value: "finance-opacity", label: "Lack of transparency about finances" },
+          { value: "side-job", label: "Partner takes another job or side project" },
+          { value: "broken-commitments", label: "Repeated failure to follow through on commitments" },
+          { value: "unethical", label: "Unethical behavior" },
+          { value: "conflict-inability", label: "Inability to resolve conflicts constructively" },
+          { value: "direction-pivot", label: "Partner wants to pivot away from agreed direction" },
+        ],
+        allowCustom: true,
+      },
+      {
+        key: "walkaway-conditions",
+        label: "What would make you walk away from this partnership?",
+        type: "free-text",
+        required: true,
+        minLength: 50,
+      },
+      {
+        key: "trust-scenarios",
+        label: "Respond to these trust scenarios",
+        type: "scenario",
+        required: true,
+        scenarios: [
+          "Your partner wants to bring in a third co-founder you don't know well",
+          "Your partner admits they made a costly mistake that sets you back 3 months",
+          "You find out your partner has been interviewing for full-time jobs",
+          "Your partner disagrees with you on a critical product decision",
+          "A major investor wants to fund you but only if your partner steps down as CTO",
+        ],
+        description: "For each scenario, describe what you would do and how you would feel.",
+      },
+      {
+        key: "partner-reflections",
+        label: "Reflect on each of your partners",
+        type: "partner-reflection",
+        required: true,
+        description: "Answer these questions about each partner in the team.",
+      },
+    ],
+  },
+];
