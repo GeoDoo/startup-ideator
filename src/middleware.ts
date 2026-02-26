@@ -1,40 +1,54 @@
-import { auth } from "@/lib/auth";
+import { authMiddleware } from "@/lib/auth/edge";
 import { NextResponse } from "next/server";
 
 const publicPaths = ["/", "/login", "/register", "/privacy", "/terms"];
+const isDev = process.env.NODE_ENV === "development";
 
-export default auth((req) => {
-  const { pathname } = req.nextUrl;
-
-  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-
-  const cspDirectives = [
+function buildCspHeader(nonce: string): string {
+  const directives = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-    `style-src 'self' 'nonce-${nonce}'`,
+    isDev
+      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+    isDev
+      ? "style-src 'self' 'unsafe-inline'"
+      : `style-src 'self' 'nonce-${nonce}' 'unsafe-inline'`,
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
-    "connect-src 'self' https:",
+    isDev
+      ? "connect-src 'self' https: ws:"
+      : "connect-src 'self' https:",
     "frame-ancestors 'self'",
     "base-uri 'self'",
     "form-action 'self'",
-    "upgrade-insecure-requests",
   ];
 
-  const cspHeader = cspDirectives.join("; ");
+  if (!isDev) {
+    directives.push("upgrade-insecure-requests");
+  }
+
+  return directives.join("; ");
+}
+
+function withCsp(response: NextResponse): NextResponse {
+  const nonceBytes = new Uint8Array(16);
+  crypto.getRandomValues(nonceBytes);
+  const nonce = btoa(String.fromCharCode(...nonceBytes));
+
+  response.headers.set("x-nonce", nonce);
+  response.headers.set("Content-Security-Policy", buildCspHeader(nonce));
+  return response;
+}
+
+export default authMiddleware((req) => {
+  const { pathname } = req.nextUrl;
 
   if (publicPaths.some((p) => pathname === p)) {
-    const response = NextResponse.next();
-    response.headers.set("x-nonce", nonce);
-    response.headers.set("Content-Security-Policy", cspHeader);
-    return response;
+    return withCsp(NextResponse.next());
   }
   if (pathname.startsWith("/api/auth")) return NextResponse.next();
   if (pathname.startsWith("/invite/")) {
-    const response = NextResponse.next();
-    response.headers.set("x-nonce", nonce);
-    response.headers.set("Content-Security-Policy", cspHeader);
-    return response;
+    return withCsp(NextResponse.next());
   }
   if (pathname.startsWith("/_next")) return NextResponse.next();
   if (pathname.includes(".")) return NextResponse.next();
@@ -45,10 +59,7 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  const response = NextResponse.next();
-  response.headers.set("x-nonce", nonce);
-  response.headers.set("Content-Security-Policy", cspHeader);
-  return response;
+  return withCsp(NextResponse.next());
 });
 
 export const config = {
