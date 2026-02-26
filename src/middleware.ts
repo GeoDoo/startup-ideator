@@ -6,9 +6,36 @@ const publicPaths = ["/", "/login", "/register", "/privacy", "/terms"];
 export default auth((req) => {
   const { pathname } = req.nextUrl;
 
-  if (publicPaths.some((p) => pathname === p)) return NextResponse.next();
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+
+  const cspDirectives = [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+    `style-src 'self' 'nonce-${nonce}'`,
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    "connect-src 'self' https:",
+    "frame-ancestors 'self'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "upgrade-insecure-requests",
+  ];
+
+  const cspHeader = cspDirectives.join("; ");
+
+  if (publicPaths.some((p) => pathname === p)) {
+    const response = NextResponse.next();
+    response.headers.set("x-nonce", nonce);
+    response.headers.set("Content-Security-Policy", cspHeader);
+    return response;
+  }
   if (pathname.startsWith("/api/auth")) return NextResponse.next();
-  if (pathname.startsWith("/invite/")) return NextResponse.next();
+  if (pathname.startsWith("/invite/")) {
+    const response = NextResponse.next();
+    response.headers.set("x-nonce", nonce);
+    response.headers.set("Content-Security-Policy", cspHeader);
+    return response;
+  }
   if (pathname.startsWith("/_next")) return NextResponse.next();
   if (pathname.includes(".")) return NextResponse.next();
 
@@ -18,7 +45,10 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.headers.set("x-nonce", nonce);
+  response.headers.set("Content-Security-Policy", cspHeader);
+  return response;
 });
 
 export const config = {

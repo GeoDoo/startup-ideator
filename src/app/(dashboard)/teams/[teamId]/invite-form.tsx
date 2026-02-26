@@ -32,9 +32,10 @@ export function InviteForm({ teamId }: { teamId: string }) {
 
   return (
     <div>
-      <p className="text-sm font-medium mb-2">Invite a partner</p>
+      <label htmlFor="invite-email" className="text-sm font-medium mb-2 block">Invite a partner</label>
       <form action={handleSubmit} className="flex gap-2">
         <Input
+          id="invite-email"
           name="email"
           type="email"
           required

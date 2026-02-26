@@ -33,10 +33,13 @@ export function PulseScheduleConfig({
 
   return (
     <div className="flex gap-2">
+      <label htmlFor="pulse-frequency" className="sr-only">Pulse survey frequency</label>
       <Select
+        id="pulse-frequency"
         value={frequency}
         onChange={(e) => setFrequency(e.target.value)}
         className="flex-1"
+        aria-label="Pulse survey frequency"
       >
         {FREQUENCIES.map((f) => (
           <option key={f.value} value={f.value}>

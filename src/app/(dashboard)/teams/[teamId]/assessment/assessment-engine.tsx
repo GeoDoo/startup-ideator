@@ -169,10 +169,13 @@ export function AssessmentEngine({ assessmentId, sections, savedResponses, partn
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-1">
+      <div className="flex gap-1" role="tablist" aria-label="Assessment sections">
         {sections.map((s, i) => (
           <button
             key={s.key}
+            role="tab"
+            aria-selected={i === currentSection}
+            aria-label={`Section ${i + 1}: ${s.title}${sectionComplete(i) ? " (complete)" : ""}`}
             onClick={() => setCurrentSection(i)}
             className={`flex-1 h-2 rounded-full transition-colors ${
               i === currentSection
@@ -256,7 +259,7 @@ function QuestionRenderer({
 
   return (
     <div className="space-y-2 py-4 border-t border-zinc-100 first:border-t-0 first:pt-0">
-      <label className="text-sm font-medium">
+      <label htmlFor={`q-${sectionKey}-${question.key}`} className="text-sm font-medium">
         {question.label}
         {question.required && <span className="text-red-500 ml-1">*</span>}
       </label>
@@ -267,6 +270,7 @@ function QuestionRenderer({
       {question.type === "free-text" && (
         <>
           <textarea
+            id={`q-${sectionKey}-${question.key}`}
             className="w-full min-h-[100px] rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
             value={(value as string) || ""}
             onChange={(e) => onChange(e.target.value, true)}
@@ -342,12 +346,17 @@ function QuestionRenderer({
       {question.type === "slider" && (
         <div className="space-y-1">
           <input
+            id={`q-${sectionKey}-${question.key}`}
             type="range"
             min={question.min || 1}
             max={question.max || 10}
             value={(value as number) || question.min || 1}
             onChange={(e) => onChange(Number(e.target.value))}
             className="w-full accent-zinc-900"
+            aria-valuemin={question.min || 1}
+            aria-valuemax={question.max || 10}
+            aria-valuenow={(value as number) || question.min || 1}
+            aria-label={question.label}
           />
           <div className="flex justify-between text-xs text-zinc-400">
             <span>{question.min || 1}</span>
@@ -359,12 +368,14 @@ function QuestionRenderer({
 
       {question.type === "number" && (
         <input
+          id={`q-${sectionKey}-${question.key}`}
           type="number"
           min={question.min}
           max={question.max}
           value={(value as number) ?? ""}
           onChange={(e) => onChange(e.target.value ? Number(e.target.value) : undefined)}
           className="max-w-[200px] h-10 rounded-lg border border-zinc-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
+          aria-label={question.label}
         />
       )}
 
@@ -398,6 +409,10 @@ function QuestionRenderer({
                     onChange(next);
                   }}
                   className="w-full accent-zinc-900"
+                  aria-label={`${sp.left} to ${sp.right}`}
+                  aria-valuemin={1}
+                  aria-valuemax={10}
+                  aria-valuenow={values[i] || 5}
                 />
                 <div className="text-center text-xs text-zinc-500">
                   {values[i] || 5}
@@ -420,10 +435,14 @@ function QuestionRenderer({
                     <p className="text-xs text-zinc-400">{cat.examples}</p>
                   )}
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1" role="radiogroup" aria-label={`Rate ${cat.label}`}>
                   {Array.from({ length: (question.max || 5) + 1 }, (_, n) => (
                     <button
                       key={n}
+                      type="button"
+                      role="radio"
+                      aria-checked={ratings[cat.key] === n}
+                      aria-label={`${n} out of ${question.max || 5}`}
                       onClick={() =>
                         onChange({ ...ratings, [cat.key]: n })
                       }
@@ -450,11 +469,12 @@ function QuestionRenderer({
             const answer = answers[i] || { text: "", intensity: 5 };
             return (
               <div key={i} className="p-4 rounded-lg border border-zinc-200 space-y-3">
-                <p className="text-sm font-medium">{scenario}</p>
+                <p className="text-sm font-medium" id={`scenario-${sectionKey}-${question.key}-${i}`}>{scenario}</p>
                 <textarea
                   className="w-full min-h-[80px] rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
                   placeholder="What would you do and how would you feel?"
                   value={answer.text}
+                  aria-labelledby={`scenario-${sectionKey}-${question.key}-${i}`}
                   onChange={(e) => {
                     const next = [...answers];
                     while (next.length <= i) next.push({ text: "", intensity: 5 });
@@ -463,10 +483,11 @@ function QuestionRenderer({
                   }}
                 />
                 <div className="space-y-1">
-                  <label className="text-xs text-zinc-500">
+                  <label htmlFor={`intensity-${sectionKey}-${question.key}-${i}`} className="text-xs text-zinc-500">
                     Emotional intensity: {answer.intensity}/10
                   </label>
                   <input
+                    id={`intensity-${sectionKey}-${question.key}-${i}`}
                     type="range"
                     min={1}
                     max={10}
@@ -478,6 +499,10 @@ function QuestionRenderer({
                       onChange(next);
                     }}
                     className="w-full accent-zinc-900"
+                    aria-valuemin={1}
+                    aria-valuemax={10}
+                    aria-valuenow={answer.intensity}
+                    aria-label={`Emotional intensity for scenario ${i + 1}`}
                   />
                 </div>
               </div>
@@ -507,8 +532,9 @@ function QuestionRenderer({
                   { key: "concerns", label: "What concerns you most about working with them?" },
                 ].map((field) => (
                   <div key={field.key}>
-                    <label className="text-xs text-zinc-500">{field.label}</label>
+                    <label htmlFor={`pr-${partner.id}-${field.key}`} className="text-xs text-zinc-500">{field.label}</label>
                     <textarea
+                      id={`pr-${partner.id}-${field.key}`}
                       className="w-full min-h-[60px] rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
                       value={(partnerRefl[field.key] as string) || ""}
                       onChange={(e) => updatePartner(field.key, e.target.value, true)}
@@ -520,14 +546,19 @@ function QuestionRenderer({
                   { key: "know-work-ethic", label: "How well do you know their work ethic? (1-10)" },
                 ].map((field) => (
                   <div key={field.key} className="space-y-1">
-                    <label className="text-xs text-zinc-500">{field.label}</label>
+                    <label htmlFor={`pr-${partner.id}-${field.key}`} className="text-xs text-zinc-500">{field.label}</label>
                     <input
+                      id={`pr-${partner.id}-${field.key}`}
                       type="range"
                       min={1}
                       max={10}
                       value={(partnerRefl[field.key] as number) || 5}
                       onChange={(e) => updatePartner(field.key, Number(e.target.value))}
                       className="w-full accent-zinc-900"
+                      aria-valuemin={1}
+                      aria-valuemax={10}
+                      aria-valuenow={(partnerRefl[field.key] as number) || 5}
+                      aria-label={`${field.label} for ${partner.name}`}
                     />
                     <div className="text-center text-xs text-zinc-500">
                       {(partnerRefl[field.key] as number) || 5}
@@ -535,10 +566,11 @@ function QuestionRenderer({
                   </div>
                 ))}
                 <div>
-                  <label className="text-xs text-zinc-500">
+                  <label htmlFor={`pr-${partner.id}-conflict-history`} className="text-xs text-zinc-500">
                     Have you ever had a conflict? How was it resolved?
                   </label>
                   <textarea
+                    id={`pr-${partner.id}-conflict-history`}
                     className="w-full min-h-[60px] rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
                     value={(partnerRefl["conflict-history"] as string) || ""}
                     onChange={(e) => updatePartner("conflict-history", e.target.value, true)}
@@ -585,16 +617,20 @@ function RankingInput({
           <span className="flex-1 text-sm">{labelMap[item] || item}</span>
           <div className="flex gap-1">
             <button
+              type="button"
               onClick={() => moveItem(i, "up")}
               disabled={i === 0}
               className="p-1 text-xs text-zinc-400 hover:text-zinc-700 disabled:opacity-30"
+              aria-label={`Move ${labelMap[item] || item} up`}
             >
               ▲
             </button>
             <button
+              type="button"
               onClick={() => moveItem(i, "down")}
               disabled={i === ranked.length - 1}
               className="p-1 text-xs text-zinc-400 hover:text-zinc-700 disabled:opacity-30"
+              aria-label={`Move ${labelMap[item] || item} down`}
             >
               ▼
             </button>

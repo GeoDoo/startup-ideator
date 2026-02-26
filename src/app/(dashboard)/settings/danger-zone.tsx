@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { requestAccountDeletion, cancelAccountDeletion } from "@/lib/actions/privacy";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,13 @@ export function DangerZone({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const confirmRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (showConfirm) {
+      confirmRef.current?.focus();
+    }
+  }, [showConfirm]);
 
   async function handleDelete() {
     setLoading(true);
@@ -50,9 +57,9 @@ export function DangerZone({
 
   if (showConfirm) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3" ref={confirmRef} tabIndex={-1} role="alertdialog" aria-labelledby="danger-confirm-title">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-sm text-red-700 font-medium">Are you sure?</p>
+          <p id="danger-confirm-title" className="text-sm text-red-700 font-medium">Are you sure?</p>
           <p className="text-sm text-red-600 mt-1">
             This will schedule your account for deletion in 30 days. You can cancel during this period.
             After 30 days, all your data will be permanently removed.

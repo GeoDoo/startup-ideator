@@ -53,10 +53,11 @@ export function RatingForm({
       {DIMENSIONS.map((dim) => (
         <div key={dim.key} className="space-y-1">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium">{dim.label}</label>
+            <label htmlFor={`rating-${dim.key}`} className="text-xs font-medium">{dim.label}</label>
             <span className="text-xs text-zinc-500">{ratings[dim.key]}/10</span>
           </div>
           <input
+            id={`rating-${dim.key}`}
             type="range"
             min={1}
             max={10}
@@ -66,6 +67,10 @@ export function RatingForm({
               setSaved(false);
             }}
             className="w-full accent-zinc-900"
+            aria-valuemin={1}
+            aria-valuemax={10}
+            aria-valuenow={ratings[dim.key]}
+            aria-label={`${dim.label}: ${dim.description}`}
           />
           <p className="text-xs text-zinc-400">{dim.description}</p>
         </div>

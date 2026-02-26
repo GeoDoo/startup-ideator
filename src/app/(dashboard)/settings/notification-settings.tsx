@@ -42,6 +42,10 @@ export function NotificationSettings({ preferences }: { preferences: Prefs }) {
         <label key={key} className="flex items-center justify-between py-1">
           <span className="text-sm">{label}</span>
           <button
+            type="button"
+            role="switch"
+            aria-checked={prefs[key]}
+            aria-label={label}
             onClick={() => toggle(key)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
               prefs[key] ? "bg-zinc-900" : "bg-zinc-200"

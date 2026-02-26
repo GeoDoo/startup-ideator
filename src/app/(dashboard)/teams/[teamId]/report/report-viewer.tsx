@@ -76,7 +76,14 @@ export function ReportViewer({ report }: Props) {
                   <span className="text-sm font-medium">{score.dimension}</span>
                   <span className="text-sm text-zinc-500">{score.score}/{score.maxScore}</span>
                 </div>
-                <div className="w-full bg-zinc-100 rounded-full h-2.5">
+                <div
+                  className="w-full bg-zinc-100 rounded-full h-2.5"
+                  role="progressbar"
+                  aria-valuenow={score.score}
+                  aria-valuemin={0}
+                  aria-valuemax={score.maxScore}
+                  aria-label={`${score.dimension}: ${score.score} out of ${score.maxScore}`}
+                >
                   <div
                     className={`h-2.5 rounded-full transition-all ${
                       score.score >= 75

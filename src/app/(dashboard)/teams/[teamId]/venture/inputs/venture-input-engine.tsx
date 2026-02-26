@@ -77,10 +77,13 @@ export function VentureInputEngine({ teamId, sections, savedResponses }: Props) 
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-1">
+      <div className="flex gap-1" role="tablist" aria-label="Venture input sections">
         {sections.map((s, i) => (
           <button
             key={s.key}
+            role="tab"
+            aria-selected={i === currentSection}
+            aria-label={`Section ${i + 1}: ${s.title}`}
             onClick={() => setCurrentSection(i)}
             className={`flex-1 h-2 rounded-full transition-colors ${
               i === currentSection ? "bg-zinc-900" : i < currentSection ? "bg-green-500" : "bg-zinc-200"
@@ -105,7 +108,7 @@ export function VentureInputEngine({ teamId, sections, savedResponses }: Props) 
             const value = responses[`${section.key}:${q.key}`];
             return (
               <div key={q.key} className="space-y-2 py-4 border-t border-zinc-100 first:border-t-0 first:pt-0">
-                <label className="text-sm font-medium">
+                <label htmlFor={`vq-${section.key}-${q.key}`} className="text-sm font-medium">
                   {q.label}
                   {q.required && <span className="text-red-500 ml-1">*</span>}
                 </label>
@@ -113,6 +116,7 @@ export function VentureInputEngine({ teamId, sections, savedResponses }: Props) 
 
                 {q.type === "free-text" && (
                   <textarea
+                    id={`vq-${section.key}-${q.key}`}
                     className="w-full min-h-[100px] rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
                     value={(value as string) || ""}
                     onChange={(e) => setAnswer(section.key, q.key, e.target.value, true)}

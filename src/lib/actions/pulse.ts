@@ -2,6 +2,8 @@
 
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { reportScoresSchema } from "@/lib/validation/schemas";
+import { computeNextDue } from "@/lib/scheduling";
 
 export async function getOrCreatePulseAssessment(teamId: string) {
   const session = await auth();
@@ -151,20 +153,14 @@ export async function getTrendData(teamId: string) {
     }),
   ]);
 
-  return { reports, milestones, pulseAssessments };
+  const validatedReports = reports.map((r) => {
+    const parsed = reportScoresSchema.safeParse(r.scores);
+    return {
+      ...r,
+      scores: parsed.success ? parsed.data : [],
+    };
+  });
+
+  return { reports: validatedReports, milestones, pulseAssessments };
 }
 
-function computeNextDue(frequency: string): Date {
-  const now = new Date();
-  switch (frequency) {
-    case "weekly":
-      return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    case "biweekly":
-      return new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
-    case "quarterly":
-      return new Date(now.getFullYear(), now.getMonth() + 3, now.getDate());
-    case "monthly":
-    default:
-      return new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
-  }
-}

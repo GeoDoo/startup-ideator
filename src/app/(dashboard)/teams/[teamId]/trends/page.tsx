@@ -19,14 +19,14 @@ export default async function TrendsPage({ params }: { params: Promise<{ teamId:
   const isCreator = team.currentUserRole === "creator";
 
   const dataPoints = trendData?.reports.map((r) => {
-    const scores = r.scores as { dimension: string; score: number }[] | null;
-    const overallScore = scores
+    const scores = r.scores;
+    const overallScore = scores.length > 0
       ? Math.round(scores.reduce((sum, s) => sum + s.score, 0) / scores.length)
       : 0;
     return {
       date: r.createdAt.toISOString().split("T")[0],
       overall: overallScore,
-      ...Object.fromEntries((scores || []).map((s) => [s.dimension, s.score])),
+      ...Object.fromEntries(scores.map((s) => [s.dimension, s.score])),
     };
   }) || [];
 

@@ -42,9 +42,14 @@ export function NotificationList({ notifications }: { notifications: Notificatio
                 <NotificationContent notification={n} />
               </Link>
             ) : (
-              <div onClick={() => handleClick(n)} className="cursor-pointer">
+              <button
+                type="button"
+                onClick={() => handleClick(n)}
+                className="cursor-pointer text-left w-full"
+                aria-label={`Mark "${n.title}" as read`}
+              >
                 <NotificationContent notification={n} />
-              </div>
+              </button>
             )}
           </CardContent>
         </Card>

@@ -34,8 +34,7 @@ Feature: Ongoing Partnership Reassessment
   Scenario: Team creator configures the reassessment frequency
     Given I am the team creator
     When I navigate to team settings
-    Then I should be able to choose from preset frequencies (Monthly, Quarterly, Semi-annually)
-    Or set a custom interval in days
+    Then I should be able to choose from preset frequencies or set a custom interval in days
 
   # --- Pulse Survey Content ---
 

@@ -24,12 +24,16 @@ export function MilestoneForm({ teamId }: { teamId: string }) {
 
   return (
     <div className="space-y-2">
+      <label htmlFor="milestone-title" className="sr-only">Milestone title</label>
       <Input
+        id="milestone-title"
         placeholder="Milestone title (e.g., 'Raised seed round')"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
+      <label htmlFor="milestone-desc" className="sr-only">Milestone description</label>
       <Input
+        id="milestone-desc"
         placeholder="Description (optional)"
         value={description}
         onChange={(e) => setDescription(e.target.value)}

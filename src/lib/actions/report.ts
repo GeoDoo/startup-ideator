@@ -3,11 +3,24 @@
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { getAIProvider } from "@/lib/ai";
+import { rateLimit } from "@/lib/rate-limit";
 import { type AnonymizedPartnerResponse, type CompatibilityReport } from "@/lib/ai/types";
+import { compatibilityReportSchema } from "@/lib/validation/schemas";
+
+const REPORT_RATE_LIMIT = { windowMs: 10 * 60 * 1000, maxRequests: 3 };
 
 export async function generateReport(teamId: string) {
   const session = await auth();
   if (!session?.user?.id) return { success: false, error: "Not authenticated" };
+
+  const { allowed, retryAfterMs } = await rateLimit(
+    `report:${session.user.id}`,
+    REPORT_RATE_LIMIT
+  );
+  if (!allowed) {
+    const minutes = Math.ceil(retryAfterMs / 60_000);
+    return { success: false, error: `Rate limited. Try again in ${minutes} minute${minutes > 1 ? "s" : ""}.` };
+  }
 
   const membership = await prisma.teamMember.findUnique({
     where: { userId_teamId: { userId: session.user.id, teamId } },
@@ -42,7 +55,16 @@ export async function generateReport(teamId: string) {
     return { success: true, reportId: existingReport.id };
   }
   if (existingReport?.status === "generating") {
-    return { success: false, error: "A report is already being generated. Please wait." };
+    const STALE_THRESHOLD_MS = 10 * 60 * 1000;
+    const age = Date.now() - existingReport.createdAt.getTime();
+    if (age > STALE_THRESHOLD_MS) {
+      await prisma.report.update({
+        where: { id: existingReport.id },
+        data: { status: "failed" },
+      });
+    } else {
+      return { success: false, error: "A report is already being generated. Please wait." };
+    }
   }
 
   const team = await prisma.team.findUnique({ where: { id: teamId } });
@@ -67,13 +89,19 @@ export async function generateReport(teamId: string) {
 
   try {
     const provider = getAIProvider();
-    const result = await provider.generateCompatibilityReport({
+    const raw = await provider.generateCompatibilityReport({
       teamSize: completedMembers.length,
       teamStage: team?.stage || null,
       teamDomain: team?.domain || null,
       partnerResponses,
     });
 
+    const validated = compatibilityReportSchema.safeParse(raw);
+    if (!validated.success) {
+      throw new Error(`AI returned invalid report structure: ${validated.error.issues[0].message}`);
+    }
+
+    const result = validated.data;
     await prisma.report.update({
       where: { id: report.id },
       data: {
@@ -118,5 +146,11 @@ export async function getReport(teamId: string, reportId?: string) {
 export async function getLatestReport(teamId: string): Promise<CompatibilityReport | null> {
   const report = await getReport(teamId);
   if (!report?.content) return null;
-  return report.content as unknown as CompatibilityReport;
+
+  const parsed = compatibilityReportSchema.safeParse(report.content);
+  if (!parsed.success) {
+    console.error("Corrupt report data:", parsed.error.issues[0]);
+    return null;
+  }
+  return parsed.data;
 }

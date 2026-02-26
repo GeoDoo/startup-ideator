@@ -3,7 +3,11 @@
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { getAIProvider } from "@/lib/ai";
+import { rateLimit } from "@/lib/rate-limit";
 import { buildVenturePrompt } from "@/lib/ai/prompts/venture";
+import { ventureInputResponsesSchema } from "@/lib/validation/schemas";
+
+const VENTURE_RATE_LIMIT = { windowMs: 10 * 60 * 1000, maxRequests: 5 };
 
 export async function getOrCreateVentureInput(teamId: string) {
   const session = await auth();
@@ -46,7 +50,8 @@ export async function saveVentureInput(
   });
   if (!input || input.status === "completed") return { success: false };
 
-  const responses = (input.responses as Record<string, Record<string, unknown>>) || {};
+  const rawResponses = ventureInputResponsesSchema.safeParse(input.responses);
+  const responses = rawResponses.success ? rawResponses.data : {};
   if (!responses[sectionKey]) responses[sectionKey] = {};
   responses[sectionKey][questionKey] = answer;
 
@@ -103,6 +108,15 @@ export async function getVentureInputStatus(teamId: string) {
 export async function generateVentureCandidates(teamId: string) {
   const session = await auth();
   if (!session?.user?.id) return { success: false, error: "Not authenticated" };
+
+  const { allowed, retryAfterMs } = await rateLimit(
+    `venture:${session.user.id}`,
+    VENTURE_RATE_LIMIT
+  );
+  if (!allowed) {
+    const minutes = Math.ceil(retryAfterMs / 60_000);
+    return { success: false, error: `Rate limited. Try again in ${minutes} minute${minutes > 1 ? "s" : ""}.` };
+  }
 
   const membership = await prisma.teamMember.findUnique({
     where: { userId_teamId: { userId: session.user.id, teamId } },
